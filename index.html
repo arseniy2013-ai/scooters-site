@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог электросамокатов Kugoo & KuKirin</title>
+    <style>
+        :root {
+            --primary: #ff6600;
+            --primary-hover: #e65c00;
+            --dark-bg: #121214;
+            --card-bg: #1e1e22;
+            --text-main: #f0f0f5;
+            --text-muted: #a0a0ab;
+            --border: #2a2a30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #121214;
+            color: #fff;
+            width: 280px;
+            outline: none;
+        }
+
+        .budget-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #121214;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #2a2a30;
+        }
+
+        .card-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-badge {
+            align-self: flex-start;
+            background: rgba(255, 102, 0, 0.2);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .card-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        
+
+
+         .specs {
+            list-style: none;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .specs li {
+            margin-bottom: 4px;
+        }
+
+        .card-btn {
+            margin-top: auto;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .card-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .close-modal:hover { color: #fff; }
+
+        /* Contacts & Order Form */
+        .contacts-section {
+            margin-top: 50px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+
+        .contact-info strong {
+            color: var(--text-main);
+        }
+
+        .order-form input, .order-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #121214;
+            color: #fff;
+            outline: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Каталог Электросамокатов Kugoo & KuKirin</h1>
+        <p>Городские самокаты, кроссоверы и внедорожные флагманы</p>
+    </header>
+
+    <main class="container">
+        <!-- Фильтры и поиск -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск по модели..." onkeyup="filterProducts()">
+            </div>
+            <div class="budget-filters">
+                <button class="filter-btn active" onclick="setBudget('all', this)">Все модели</button>
+                <button class="filter-btn" onclick="setBudget('budget', this)">До 30 000 ₽</button>
+                <button class="filter-btn" onclick="setBudget('medium', this)">30 000 - 60 000 ₽</button>
+                <button class="filter-btn" onclick="setBudget('premium', this)">От 60 000 ₽</button>
+            </div>
+        </div>
+
+        <!-- Сетка товаров -->
+        <div class="catalog-grid" id="catalogGrid"></div>
+
+        <!-- Блок контактов -->
+        <section class="contacts-section" id="contacts">
+            <h2>Контакты и заказ</h2>
+            <div class="contacts-grid">
+                <div class="contact-info">
+                    <p>Свяжитесь с нами для покупки или консультации:</p>
+                    <br>
+
+       <p><strong>Телефон:</strong> +7 (999) 000-00-00</p>
+                    <p><strong>Telegram:</strong> @your_username</p>
+                    <p><strong>WhatsApp:</strong> +7 (999) 000-00-00</p>
+                    <p><strong>Адрес шоурума:</strong> г. Москва, ул. Примерная, д. 10</p>
+                    <p><strong>Режим работы:</strong> Пн-Вс с 10:00 до 20:00</p>
+                </div>
+                <form class="order-form" onsubmit="handleFormSubmit(event)">
+                    <input type="text" placeholder="Ваше имя" required>
+                    <input type="tel" placeholder="Ваш телефон" required>
+                    <textarea rows="3" placeholder="Интересующая модель"></textarea>
+                    <button type="submit" class="card-btn">Отправить заявку</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="margin-bottom: 10px;"></h2>
+            <div id="modalPrice" class="card-price"></div>
+            <div id="modalDesc" style="margin-bottom: 20px; color: var(--text-muted);"></div>
+            <h3>Характеристики:</h3>
+            <ul id="modalSpecs" class="specs" style="margin-top: 10px; font-size: 0.95rem;"></ul>
+            <br>
+            <button class="card-btn" onclick="scrollToContacts()">Оформить заказ</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Kugoo Store. Все права защищены.</p>
+    </footer>
+
+    <script>
+        const products = [
+            {
+                id: 1,
+                title: "Kugoo Kirin L2 Pro",
+                category: "budget",
+                price: 22900,
+                speed: "30 км/ч",
+                range: "25 км",
+                power: "350 Вт",
+                weight: "14 кг",
+                img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80",
+                description: "Стильный городской электросамокат с литыми перфорированными колесами 8.5 дюймов, которые обеспечивают плавность хода и не боятся проколов."
+            },
+            {
+                id: 2,
+                title: "Kugoo Kirin M2 Plus",
+                category: "budget",
+                price: 28500,
+                speed: "35 км/ч",
+                range: "30 км",
+                power: "350 Вт",
+                weight: "16 кг",
+                img: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80",
+                description: "Комфортный бюджетный самокат с амортизаторами и мягким съемным сиденьем."
+            },
+            {
+                id: 3,
+                title: "Kugoo Kirin Max Speed",
+                category: "medium",
+                price: 38900,
+                speed: "40 км/ч",
+                range: "35 км",
+                power: "500 Вт",
+                weight: "21 кг",
+                img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
+                description: "Проверенная городская модель с широкой декой и возможностью установки сиденья."
+            },
+            {
+                id: 4,
+                title: "Kugoo Kirin M4 Pro (18 Ah)",
+                category: "medium",
+                price: 44900,
+                speed: "45 км/ч",
+                range: "45 км",
+                power: "500 Вт",
+                weight: "23 кг",
+                img: "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=600&q=80",
+                description: "Универсальный и надежный электросамокат с сиденьем, глубоким протектором и отличной амортизацией."
+            },
+            {
+                id: 5,
+                title: "Kugoo Kirin M5 Pro",
+                category: "medium",
+                price: 59900,
+            
+
+
+             speed: "55 км/ч",
+                range: "60 км",
+                power: "1000 Вт",
+                weight: "31 кг",
+                img: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80",
+                description: "Тяжелый и надежный внедорожник с мощным мотором и вместительным багажным боксом сзади."
+            },
+            {
+                id: 6,
+                title: "Kugoo Kirin G2",
+                category: "medium",
+                price: 45900,
+                speed: "45 км/ч",
+                range: "40 км",
+                power: "800 Вт",
+                weight: "24 кг",
+                img: "https://images.unsplash.com/photo-1558981359-219d6364c9c8?auto=format&fit=crop&w=600&q=80",
+                description: "Классический надежный Kugoo G2 с отличной динамикой, дисковыми тормозами и современной подвеской."
+            },
+            {
+                id: 7,
+                title: "KuKirin G2 Pro",
+                category: "medium",
+                price: 49900,
+                speed: "45 км/ч",
+                range: "50 км",
+                power: "600 Вт",
+                weight: "26 кг",
+                img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
+                description: "Современный городской кроссовер с эластомерной подвеской и отличным управлением."
+            },
+            {
+                id: 8,
+                title: "KuKirin G2 Max",
+                category: "medium",
+                price: 59900,
+                speed: "55 км/ч",
+                range: "70 км",
+                power: "1000 Вт",
+                weight: "31 кг",
+                img: "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=600&q=80",
+                description: "Мощный одномоторный самокат с высокой дальностью хода на одном заряде."
+            },
+            {
+                id: 9,
+                title: "KuKirin G2 Pro Max",
+                category: "medium",
+                price: 56900,
+                speed: "55 км/ч",
+                range: "55 км",
+                power: "2x1000 Вт",
+                weight: "30 кг",
+                img: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80",
+                description: "Усиленная полноприводная версия популярного G2 Pro для уверенного преодоления бездорожья."
+            },
+            {
+                id: 10,
+                title: "KuKirin G1",
+                category: "medium",
+                price: 54900,
+                speed: "55 км/ч",
+                range: "50 км",
+                power: "2x1000 Вт",
+                weight: "32 кг",
+                img: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80",
+                description: "Полноприводный самокат с двумя мощными двигателями по 1000 Вт для динамичной езды."
+            },
+            {
+                id: 11,
+                title: "KuKirin G1 Pro",
+                category: "premium",
+                price: 64900,
+                speed: "60 км/ч",
+                range: "60 км",
+                power: "2x1200 Вт",
+                weight: "35 кг",
+                img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
+                description: "Улучшенная про-версия полного привода с повышенной емкостью батареи и улучшенным контроллером."
+            },
+            {
+                id: 12,
+                title: "KuKirin G2 Master",
+                category: "medium",
+                price: 58900,
+                speed: "60 км/ч",
+                range: "60 км",
+                power: "2x1000 Вт",
+                weight: "33 кг",
+                img: "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=600&q=80",
+
+
+             description: "Полноприводный самокат с двумя моторами по 1000 Вт и гидравлической подвеской."
+            },
+            {
+                id: 13,
+                title: "KuKirin G3",
+                category: "medium",
+                price: 56900,
+                speed: "50 км/ч",
+                range: "60 км",
+                power: "1200 Вт",
+                weight: "25 кг",
+                img: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80",
+                description: "Стильный футуристичный самокат с литой цельной рамой и сенсорным бортовым компьютером."
+            },
+            {
+                id: 14,
+                title: "KuKirin F3 Pro Max",
+                category: "premium",
+                price: 69900,
+                speed: "65 км/ч",
+                range: "65 км",
+                power: "2x1100 Вт",
+                weight: "36 кг",
+                img: "https://images.unsplash.com/photo-1558981359-219d6364c9c8?auto=format&fit=crop&w=600&q=80",
+                description: "Мощная новинка с раздельным полным приводом, агрессивным дизайном и усиленной рамой."
+            },
+            {
+                id: 15,
+                title: "KuKirin G3 Pro",
+                category: "premium",
+                price: 89900,
+                speed: "65 км/ч",
+                range: "80 км",
+                power: "2x1200 Вт",
+                weight: "38 кг",
+                img: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80",
+                description: "Флагманский полный привод с гидротормозами, гидравлической подвеской и съемным аккумулятором."
+            },
+            {
+                id: 16,
+                title: "KuKirin G4",
+                category: "premium",
+                price: 74900,
+                speed: "70 км/ч",
+                range: "75 км",
+                power: "2000 Вт",
+                weight: "37 кг",
+                img: "https://images.unsplash.com/photo-1597072689227-8882273e8f6a?auto=format&fit=crop&w=600&q=80",
+                description: "Высокоскоростной шоссейный самокат с агрессивным дизайном и широкими колесами."
+            },
+            {
+                id: 17,
+                title: "KuKirin G4 Max",
+                category: "premium",
+                price: 139900,
+                speed: "86 км/ч",
+                range: "95 км",
+                power: "2x1600 Вт",
+                weight: "64 кг",
+                img: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80",
+                description: "Сверхмощный внедорожный флагман с мотоциклетной вилкой и гидравлическими тормозами."
+            }
+        ];
+
+        let activeCategory = 'all';
+
+        function renderProducts(items) {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Модели не найдены.</p>';
+                return;
+            }
+
+            items.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${p.img}" alt="${p.title}" class="card-img">
+                    <div class="card-body">
+                        <span class="card-badge">${getCategoryName(p.category)}</span>
+                        <h3 class="card-title">${p.title}</h3>
+                        <div class="card-price">${p.price.toLocaleString()} ₽</div>
+                        <ul class="specs">
+                            <li>⚡ Мощность: ${p.power}</li>
+                            <li>🚀 Скорость: ${p.speed}</li>
+                            <li>🔋 Запас хода: ${p.range}</li>
+                            <li>⚖️ Вес: ${p.weight}</li>
+                        </ul>
+                  
+
+            <button class="card-btn" onclick="openModal(${p.id})">Подробнее</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function getCategoryName(cat) {
+            if (cat === 'budget') return 'Городской';
+            if (cat === 'medium') return 'Средний класс / Кроссовер';
+            if (cat === 'premium') return 'Флагман / Внедорожник';
+            return '';
+        }
+
+        function setBudget(category, btn) {
+            activeCategory = category;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProducts();
+        }
+
+        function filterProducts() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => {
+                const matchesCategory = (activeCategory === 'all' || p.category === activeCategory);
+                const matchesSearch = p.title.toLowerCase().includes(searchText) || p.description.toLowerCase().includes(searchText);
+                return matchesCategory && matchesSearch;
+            });
+            renderProducts(filtered);
+        }
+
+        function openModal(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('modalTitle').innerText = product.title;
+            document.getElementById('modalPrice').innerText = product.price.toLocaleString() + ' ₽';
+            document.getElementById('modalDesc').innerText = product.description;
+
+            const specsList = document.getElementById('modalSpecs');
+            specsList.innerHTML = `
+                <li><strong>Мощность:</strong> ${product.power}</li>
+                <li><strong>Максимальная скорость:</strong> ${product.speed}</li>
+                <li><strong>Запас хода:</strong> ${product.range}</li>
+                <li><strong>Вес:</strong> ${product.weight}</li>
+                <li><strong>Класс:</strong> ${getCategoryName(product.category)}</li>
+            `;
+
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function scrollToContacts() {
+            closeModal();
+            document.getElementById('contacts').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            alert('Заявка успешно отправлена!');
+            e.target.reset();
+        }
+
+        // Инициализация при загрузке
+        renderProducts(products);
+    </script>
+</body>
+</html>
